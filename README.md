@@ -1,42 +1,75 @@
 
 # Rapport
 
-**Skriv din rapport här!**
-
-_Du kan ta bort all text som finns sedan tidigare_.
-
-## Följande grundsyn gäller dugga-svar:
-
-- Ett kortfattat svar är att föredra. Svar som är längre än en sida text (skärmdumpar och programkod exkluderat) är onödigt långt.
-- Svaret skall ha minst en snutt programkod.
-- Svaret skall inkludera en kort övergripande förklarande text som redogör för vad respektive snutt programkod gör eller som svarar på annan teorifråga.
-- Svaret skall ha minst en skärmdump. Skärmdumpar skall illustrera exekvering av relevant programkod. Eventuell text i skärmdumpar måste vara läsbar.
-- I de fall detta efterfrågas, dela upp delar av ditt svar i för- och nackdelar. Dina för- respektive nackdelar skall vara i form av punktlistor med kortare stycken (3-4 meningar).
-
-Programkod ska se ut som exemplet nedan. Koden måste vara korrekt indenterad då den blir lättare att läsa vilket gör det lättare att hitta syntaktiska fel.
+Först skapas klassen "Mountain", samt en arraylist i MainActivity som ska innehålla Mountain-objekten.
+Mountain-klassen har attributen "name", "location" och "height", men det är endast name som vi är intresserade
+av att visa på vår display. En extra constructor finns till i fall data skulle vara null.
 
 ```
-function errorCallback(error) {
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            // Geolocation API stöds inte, gör något
-            break;
-        case error.POSITION_UNAVAILABLE:
-            // Misslyckat positionsanrop, gör något
-            break;
-        case error.UNKNOWN_ERROR:
-            // Okänt fel, gör något
-            break;
+public class Mountain {
+private String name;
+private String location;
+private int height;
+
+    public Mountain () {
+        name="Saknar namn";
+        location="Saknar plats";
+        height=-1;
     }
+
+    public Mountain(String name, String location, int height) {
+        this.name = name;
+        this.location = location;
+        this.height = height;
+    }
+
+    public String getName() {
+        return name;
+    }
+
 }
 ```
 
-Bilder läggs i samma mapp som markdown-filen.
+Därefter läggs det till en RecyclerView på MainActivity som ska visa en lista på vad som finns i Arraylistan.
+En ny XML fil i mappen layout kallad recyclerview_item skapas, som definierar hur objekt i RecyclerView ska visas på skärmen.
 
-![](android.png)
+Det behövs även en adapter som ser till att visa data i RecyclerView. Denna instansieras i MainActivity och kopplas
+till vår RecyclerView.
 
-Läs gärna:
+```
+adapter = new RecyclerViewAdapter(this, mountainArrayList, new RecyclerViewAdapter.OnClickListener() {
+    @Override
+    public void onClick(Mountain item) {
+        Toast.makeText(MainActivity.this, item.getName(), Toast.LENGTH_SHORT).show();
+    }
+});
 
-- Boulos, M.N.K., Warren, J., Gong, J. & Yue, P. (2010) Web GIS in practice VIII: HTML5 and the canvas element for interactive online mapping. International journal of health geographics 9, 14. Shin, Y. &
-- Wunsche, B.C. (2013) A smartphone-based golf simulation exercise game for supporting arthritis patients. 2013 28th International Conference of Image and Vision Computing New Zealand (IVCNZ), IEEE, pp. 459–464.
-- Wohlin, C., Runeson, P., Höst, M., Ohlsson, M.C., Regnell, B., Wesslén, A. (2012) Experimentation in Software Engineering, Berlin, Heidelberg: Springer Berlin Heidelberg.
+RecyclerView view = findViewById(R.id.recycler_view);
+view.setLayoutManager(new LinearLayoutManager(this));
+view.setAdapter(adapter);
+
+}
+```
+
+JSON-data hämtas från "https://mobprog.webug.se/json-api?login=brom" genom att exekvera JSONTask.
+
+```
+new JsonTask(this).execute(JSON_URL);
+```
+
+Datan skickas sedan till onPostExecute i MainActivity, där den blir parsad med hjälp av biblioteket Gson, och
+läggs till som mountain-objekt i mountainArrayList. Listan skickas sedan in i adaptern som uppdaterar displayen.
+
+```
+    @Override
+    public void onPostExecute(String json) {
+        Log.d("MainActivity", json);
+        Type type = new TypeToken<ArrayList<Mountain>>() {}.getType();
+        mountainArrayList = gson.fromJson(json, type);
+        adapter.setItems(mountainArrayList);
+        adapter.notifyDataSetChanged();
+
+    }
+```
+
+![](screenshot.png)

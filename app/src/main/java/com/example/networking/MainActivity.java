@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements JsonTask.JsonTask
         view.setAdapter(adapter);
 
         new JsonTask(this).execute(JSON_URL);
-
     }
 
     @Override
