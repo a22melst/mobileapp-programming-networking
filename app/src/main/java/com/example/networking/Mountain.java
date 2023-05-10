@@ -17,22 +17,7 @@ public class Mountain {
         this.height = height;
     }
 
-    public String info() {
-        String tmp = new String();
-        tmp+=name + " is located in mountain range " + location + "and reaches " + height + "m above sea level.";
-        return tmp;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
         return name;
     }
 
